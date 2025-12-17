@@ -18,7 +18,7 @@ export interface JWTPayload {
   email: string;
 }
 
-export interface AuthenticatedRequest extends Express.Request {
+export interface AuthenticatedRequest extends Request {
   userId?: string;
   user?: {
     id: string;

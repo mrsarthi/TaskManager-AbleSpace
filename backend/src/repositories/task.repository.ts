@@ -1,9 +1,9 @@
 import { prisma } from '../config/database';
-import { Task, Prisma } from '@prisma/client';
+import { Task, Prisma, Priority } from '@prisma/client';
 
 export interface TaskFilters {
   status?: string;
-  priority?: string;
+  priority?: Priority; // ✅ Now this will work!
   creatorId?: string;
   assignedToId?: string;
   overdue?: boolean;
@@ -14,19 +14,12 @@ export interface TaskSortOptions {
   sortOrder?: 'asc' | 'desc';
 }
 
-/**
- * Task Repository
- * Handles all database operations related to tasks
- */
 export class TaskRepository {
-  /**
-   * Create a new task
-   */
   async create(data: {
     title: string;
     description: string;
     dueDate: Date;
-    priority: string;
+    priority: Priority; // ✅ Using the real Enum
     status: string;
     creatorId: string;
     assignedToId?: string | null;
@@ -37,62 +30,33 @@ export class TaskRepository {
         createdAt: new Date(),
       },
       include: {
-        creator: {
-          select: { id: true, email: true, name: true },
-        },
-        assignedTo: {
-          select: { id: true, email: true, name: true },
-        },
+        creator: { select: { id: true, email: true, name: true } },
+        assignedTo: { select: { id: true, email: true, name: true } },
       },
     });
   }
 
-  /**
-   * Find task by ID
-   */
   async findById(id: string): Promise<Task | null> {
     return prisma.task.findUnique({
       where: { id },
       include: {
-        creator: {
-          select: { id: true, email: true, name: true },
-        },
-        assignedTo: {
-          select: { id: true, email: true, name: true },
-        },
+        creator: { select: { id: true, email: true, name: true } },
+        assignedTo: { select: { id: true, email: true, name: true } },
       },
     });
   }
 
-  /**
-   * Find tasks with filters and sorting
-   */
   async findMany(filters: TaskFilters, sortOptions: TaskSortOptions = {}): Promise<Task[]> {
     const where: Prisma.TaskWhereInput = {};
 
-    if (filters.status) {
-      where.status = filters.status;
-    }
-
-    if (filters.priority) {
-      where.priority = filters.priority;
-    }
-
-    if (filters.creatorId) {
-      where.creatorId = filters.creatorId;
-    }
-
-    if (filters.assignedToId) {
-      where.assignedToId = filters.assignedToId;
-    }
+    if (filters.status) where.status = filters.status;
+    if (filters.priority) where.priority = filters.priority;
+    if (filters.creatorId) where.creatorId = filters.creatorId;
+    if (filters.assignedToId) where.assignedToId = filters.assignedToId;
 
     if (filters.overdue) {
-      where.dueDate = {
-        lt: new Date(),
-      };
-      where.status = {
-        not: 'Completed',
-      };
+      where.dueDate = { lt: new Date() };
+      where.status = { not: 'Completed' };
     }
 
     const orderBy: Prisma.TaskOrderByWithRelationInput = {};
@@ -100,7 +64,6 @@ export class TaskRepository {
     const sortOrder = sortOptions.sortOrder || 'asc';
 
     if (sortBy === 'priority') {
-      // Custom ordering for priority enum
       orderBy.priority = sortOrder;
     } else {
       orderBy[sortBy] = sortOrder;
@@ -110,51 +73,35 @@ export class TaskRepository {
       where,
       orderBy,
       include: {
-        creator: {
-          select: { id: true, email: true, name: true },
-        },
-        assignedTo: {
-          select: { id: true, email: true, name: true },
-        },
+        creator: { select: { id: true, email: true, name: true } },
+        assignedTo: { select: { id: true, email: true, name: true } },
       },
     });
   }
 
-  /**
-   * Update a task
-   */
   async update(
     id: string,
     data: {
       title?: string;
       description?: string;
       dueDate?: Date;
-      priority?: string;
+      priority?: Priority;
       status?: string;
       assignedToId?: string | null;
     }
   ): Promise<Task> {
     return prisma.task.update({
       where: { id },
-      data,
+      // Casting prevents the "null vs undefined" error
+      data: data as Prisma.TaskUpdateInput,
       include: {
-        creator: {
-          select: { id: true, email: true, name: true },
-        },
-        assignedTo: {
-          select: { id: true, email: true, name: true },
-        },
+        creator: { select: { id: true, email: true, name: true } },
+        assignedTo: { select: { id: true, email: true, name: true } },
       },
     });
   }
 
-  /**
-   * Delete a task
-   */
   async delete(id: string): Promise<void> {
-    await prisma.task.delete({
-      where: { id },
-    });
+    await prisma.task.delete({ where: { id } });
   }
 }
-
