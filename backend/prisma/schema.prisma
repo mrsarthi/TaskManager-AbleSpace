@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password      String
+  name          String
+  emailVerified Boolean  @default(false)
+  emailVerificationToken String?
+  emailVerificationTokenExpires DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  createdTasks   Task[] @relation("TaskCreator")
+  assignedTasks  Task[] @relation("TaskAssignee")
+  notificationsReceived  Notification[] @relation("NotificationRecipient")
+  notificationsAssigned  Notification[] @relation("NotificationAssigner")
+  auditLogs      AuditLog[]
+}
+
+enum Priority {
+  Low
+  Medium
+  High
+  Urgent
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  dueDate     DateTime
+  priority    Priority
+  status      String   @default("ToDo") // ToDo, InProgress, Review, Completed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creatorId    String
+  creator      User     @relation("TaskCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  assignedToId String?
+  assignedTo   User?    @relation("TaskAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  auditLogs    AuditLog[]
+  notifications Notification[]
+
+  @@index([creatorId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  message   String
+  read      Boolean  @default(false)
+  userId    String
+  user      User     @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  taskId    String?
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  assignedById String?
+  assignedBy   User?   @relation("NotificationAssigner", fields: [assignedById], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([assignedById])
+  @@index([read])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String   // e.g., "TASK_CREATED", "TASK_UPDATED", "STATUS_CHANGED"
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  oldValue  String?
+  newValue  String?
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+  @@index([userId])
+  @@index([createdAt])
+}
