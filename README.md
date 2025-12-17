@@ -423,7 +423,4 @@ npm run test:watch
 
 This project is created as part of a technical assessment.
 
----
-
-**Built with ❤️ using modern web technologies**
 
