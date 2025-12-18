@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
 import { registerDto, loginDto } from '../dto/auth.dto';
 import { ValidationError } from '../utils/errors';
-import { AuthenticatedRequest } from '../types';
 
 /**
  * Authentication Controller
@@ -87,7 +86,8 @@ export class AuthController {
    * GET /api/auth/me
    * Get current user profile
    */
-  getProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  // ✅ Changed AuthenticatedRequest to Request
+  getProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.userId) {
         throw new ValidationError('User ID not found');
@@ -106,7 +106,8 @@ export class AuthController {
    * PUT /api/auth/profile
    * Update user profile
    */
-  updateProfile = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  // ✅ Changed AuthenticatedRequest to Request
+  updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.userId) {
         throw new ValidationError('User ID not found');
@@ -169,4 +170,3 @@ export class AuthController {
     }
   };
 }
-
