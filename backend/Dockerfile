@@ -2,6 +2,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Install OpenSSL (Required for Prisma)
+RUN apk add --no-cache openssl
+
 # Copy package files
 COPY package*.json ./
 COPY prisma ./prisma/
@@ -23,4 +26,3 @@ EXPOSE 3001
 
 # Start the server
 CMD ["npm", "start"]
-
