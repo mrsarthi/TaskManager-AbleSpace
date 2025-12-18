@@ -1,6 +1,5 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { UserRepository } from '../repositories/user.repository';
-import { AuthenticatedRequest } from '../types';
 
 /**
  * User Controller
@@ -17,7 +16,7 @@ export class UserController {
    * GET /api/users
    * Get all users (for task assignment dropdown)
    */
-  getUsers = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  getUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const users = await this.userRepository.findAll();
       res.json({
@@ -29,4 +28,3 @@ export class UserController {
     }
   };
 }
-

@@ -1,7 +1,6 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { NotificationRepository } from '../repositories/notification.repository';
 import { ValidationError } from '../utils/errors';
-import { AuthenticatedRequest } from '../types';
 
 /**
  * Notification Controller
@@ -18,7 +17,7 @@ export class NotificationController {
    * GET /api/notifications
    * Get notifications for current user
    */
-  getNotifications = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  getNotifications = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.userId) {
         throw new ValidationError('User ID not found');
@@ -40,7 +39,7 @@ export class NotificationController {
    * PUT /api/notifications/:id/read
    * Mark a notification as read
    */
-  markAsRead = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  markAsRead = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.userId) {
         throw new ValidationError('User ID not found');
@@ -60,7 +59,7 @@ export class NotificationController {
    * PUT /api/notifications/read-all
    * Mark all notifications as read
    */
-  markAllAsRead = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  markAllAsRead = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.userId) {
         throw new ValidationError('User ID not found');
@@ -76,4 +75,3 @@ export class NotificationController {
     }
   };
 }
-
