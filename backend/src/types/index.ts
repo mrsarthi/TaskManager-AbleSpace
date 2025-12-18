@@ -18,12 +18,4 @@ export interface JWTPayload {
   email: string;
 }
 
-export interface AuthenticatedRequest extends Request {
-  userId?: string;
-  user?: {
-    id: string;
-    email: string;
-    name: string;
-  };
-}
 

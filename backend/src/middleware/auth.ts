@@ -1,15 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express'; // Import Request
 import { verifyToken } from '../config/jwt';
 import { UnauthorizedError } from '../utils/errors';
-import { AuthenticatedRequest } from '../types';
 import { prisma } from '../config/database';
+// ❌ REMOVE: import { AuthenticatedRequest } from '../types';
 
-/**
- * Authentication middleware
- * Verifies JWT token from cookies and attaches user info to request
- */
 export async function authenticate(
-  req: AuthenticatedRequest,
+  req: Request, // ✅ Change this to Request
   res: Response,
   next: NextFunction
 ): Promise<void> {
@@ -25,7 +21,6 @@ export async function authenticate(
       throw new UnauthorizedError('Invalid or expired token');
     }
 
-    // Fetch user to ensure they still exist
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
       select: { id: true, email: true, name: true },
@@ -35,6 +30,7 @@ export async function authenticate(
       throw new UnauthorizedError('User not found');
     }
 
+    // ✅ These will work now because of Step 1
     req.userId = user.id;
     req.user = user;
     next();
@@ -42,4 +38,3 @@ export async function authenticate(
     next(error);
   }
 }
-

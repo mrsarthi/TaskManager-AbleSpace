@@ -1,8 +1,7 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { TaskService } from '../services/task.service';
 import { createTaskDto, updateTaskDto, taskQueryDto } from '../dto/task.dto';
 import { ValidationError } from '../utils/errors';
-import { AuthenticatedRequest } from '../types';
 
 /**
  * Task Controller
@@ -19,7 +18,7 @@ export class TaskController {
    * POST /api/tasks
    * Create a new task
    */
-  createTask = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  createTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.userId) {
         throw new ValidationError('User ID not found');
@@ -41,7 +40,7 @@ export class TaskController {
    * GET /api/tasks
    * Get tasks with filters and sorting
    */
-  getTasks = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  getTasks = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const queryParams = taskQueryDto.parse(req.query);
       const filters: any = {};
@@ -67,7 +66,7 @@ export class TaskController {
    * GET /api/tasks/:id
    * Get a task by ID
    */
-  getTaskById = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  getTaskById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const task = await this.taskService.getTaskById(req.params.id);
       res.json({
@@ -83,7 +82,7 @@ export class TaskController {
    * PUT /api/tasks/:id
    * Update a task
    */
-  updateTask = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  updateTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.userId) {
         throw new ValidationError('User ID not found');
@@ -105,7 +104,7 @@ export class TaskController {
    * DELETE /api/tasks/:id
    * Delete a task
    */
-  deleteTask = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  deleteTask = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.userId) {
         throw new ValidationError('User ID not found');
@@ -125,7 +124,7 @@ export class TaskController {
    * GET /api/tasks/dashboard
    * Get dashboard data for current user
    */
-  getDashboard = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
+  getDashboard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.userId) {
         throw new ValidationError('User ID not found');
@@ -141,4 +140,3 @@ export class TaskController {
     }
   };
 }
-
